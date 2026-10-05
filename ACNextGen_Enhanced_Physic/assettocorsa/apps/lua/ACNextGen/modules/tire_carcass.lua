@@ -16,6 +16,7 @@
 -- Safe observation/state module. No direct AC physics rewrite.
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 M.version = "1.1.7-XRayV2.1"
 
@@ -343,17 +344,9 @@ local function smoothstep(edge0, edge1, x)
     return t * t * (3.0 - 2.0 * t)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then return end
-    pcall(function() ac.store(key, value) end)
-end
+local safeStore = core.safeStore
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, value = pcall(function() return ac.load(key) end)
-    if not ok then return nil end
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -372,12 +365,7 @@ local function loadAlt(defaultValue, ...)
     return defaultValue, nil
 end
 
-local function safeField(obj, field, defaultValue)
-    if not obj then return defaultValue end
-    local ok, value = pcall(function() return obj[field] end)
-    if not ok or value == nil then return defaultValue end
-    return value
-end
+local safeField = core.safeField
 
 local function safeGetCar()
     if not ac or not ac.getCar then return nil end

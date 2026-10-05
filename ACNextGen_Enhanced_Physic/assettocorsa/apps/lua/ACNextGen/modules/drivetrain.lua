@@ -8,6 +8,7 @@
 -- App-side observer/bridge. No direct AC physics overwrite.
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -222,19 +223,9 @@ local function lowPass(current, target, tau, dt)
     return current + (target - current) * alpha
 end
 
-local function safeField(obj, field, defaultValue)
-    if not obj then return defaultValue end
-    local ok, value = pcall(function() return obj[field] end)
-    if not ok or value == nil then return defaultValue end
-    return value
-end
+local safeField = core.safeField
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, value = pcall(function() return ac.load(key) end)
-    if ok then return value end
-    return nil
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -253,14 +244,10 @@ local function loadFirst(defaultValue, ...)
     return defaultValue or 0.0, nil
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then return end
-    pcall(function() ac.store(key, value) end)
-end
+local safeStore = core.safeStore
 
 local function safeStoreString(key, value)
-    if not ac or not ac.store then return end
-    pcall(function() ac.store(key, tostring(value or "")) end)
+    return core.safeStore(key, tostring(value or ""))
 end
 
 local function safeGetCar()

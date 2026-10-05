@@ -6,6 +6,7 @@
 -- Tire Contact Response Layer
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 local WHEEL_NAMES = { [0] = "FL", [1] = "FR", [2] = "RL", [3] = "RR" }
@@ -179,14 +180,7 @@ local function approachTau(current, target, dt, tau)
     return lerp(current, target, 1.0 - math.exp(-dt / tau))
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-    if not ok then return nil end
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, fallback)
     local value = safeLoadRaw(key)
@@ -194,21 +188,9 @@ local function safeLoad(key, fallback)
     return safeNumber(value, fallback or 0.0)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then return end
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
-local function safeField(obj, key, fallback)
-    if not obj then return fallback end
-    local ok, value = pcall(function()
-        return obj[key]
-    end)
-    if not ok or value == nil then return fallback end
-    return value
-end
+local safeField = core.safeField
 
 local function safeGetCar()
     if not ac or not ac.getCar then return nil end

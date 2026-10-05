@@ -6,6 +6,7 @@
 -- Body rigidity root signal estimator
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -160,21 +161,9 @@ local function abs(v)
     return v
 end
 
-local function safeStore(k, v)
-    if not ac or not ac.store or not k then return end
-    pcall(function()
-        ac.store(k, v)
-    end)
-end
+local safeStore = core.safeStore
 
-local function safeLoadRaw(k)
-    if not ac or not ac.load or not k then return nil end
-    local ok, v = pcall(function()
-        return ac.load(k)
-    end)
-    if not ok then return nil end
-    return v
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(k, d)
     local v = safeLoadRaw(k)

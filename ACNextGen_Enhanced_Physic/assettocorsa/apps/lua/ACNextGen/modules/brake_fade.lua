@@ -6,6 +6,7 @@
 -- Brake Pad Friction Fade Model / Stable Runtime
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -95,21 +96,7 @@ local function clamp(v, minValue, maxValue)
     return v
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load or key == nil then
-        return nil
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, fallback)
     local value = safeLoadRaw(key)
@@ -119,17 +106,7 @@ local function safeLoad(key, fallback)
     return safeNumber(value, fallback or 0.0)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store or key == nil then
-        return false
-    end
-
-    local ok = pcall(function()
-        ac.store(key, value)
-    end)
-
-    return ok
-end
+local safeStore = core.safeStore
 
 local function lowPass(current, target, dt, tau)
     current = safeNumber(current, 0.0)

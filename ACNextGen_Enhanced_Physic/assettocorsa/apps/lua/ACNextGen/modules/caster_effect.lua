@@ -6,6 +6,7 @@
 -- Caster / KPI / trail / scrub geometry signal model
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 local FL, FR, RL, RR = 0, 1, 2, 3
@@ -201,12 +202,7 @@ local function atan2(y, x)
     return math.atan(y, x)
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, value = pcall(function() return ac.load(key) end)
-    if not ok then return nil end
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -216,16 +212,10 @@ end
 
 local function safeStore(key, value)
     if not M.params.outputEnabled then return end
-    if not ac or not ac.store then return end
-    pcall(function() ac.store(key, value) end)
+    return core.safeStore(key, value)
 end
 
-local function safeField(obj, field, defaultValue)
-    if not obj then return defaultValue end
-    local ok, value = pcall(function() return obj[field] end)
-    if not ok or value == nil then return defaultValue end
-    return value
-end
+local safeField = core.safeField
 
 local function lowPass(current, target, tau, dt)
     current = safeNumber(current, 0.0)

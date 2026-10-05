@@ -6,6 +6,7 @@
 -- Brake Thermal Core
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -84,21 +85,7 @@ local function clamp(v, minValue, maxValue)
     return v
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then
-        return nil
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -108,33 +95,9 @@ local function safeLoad(key, defaultValue)
     return safeNumber(value, defaultValue or 0.0)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return false
-    end
+local safeStore = core.safeStore
 
-    local ok = pcall(function()
-        ac.store(key, value)
-    end)
-
-    return ok == true
-end
-
-local function safeField(obj, field, defaultValue)
-    if not obj then
-        return defaultValue
-    end
-
-    local ok, value = pcall(function()
-        return obj[field]
-    end)
-
-    if not ok or value == nil then
-        return defaultValue
-    end
-
-    return value
-end
+local safeField = core.safeField
 
 local function lowPass(current, target, dt, tau)
     current = safeNumber(current, 0.0)

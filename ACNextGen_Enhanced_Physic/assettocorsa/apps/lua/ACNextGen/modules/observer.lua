@@ -12,6 +12,7 @@
 --   ・observer自身に不要な state/debugStr を持たせない
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 -- Keep the on-screen monitor lightweight during normal driving. Set false for full development diagnostics.
@@ -269,62 +270,13 @@ local function num(v, defaultValue)
     return n
 end
 
-local function safeField(obj, field, defaultValue)
-    if not obj then
-        return defaultValue
-    end
-
-    local ok, result =
-        pcall(
-            function()
-                return obj[field]
-            end
-        )
-
-    if not ok or result == nil then
-        return defaultValue
-    end
-
-    return result
-end
+local safeField = core.safeField
 
 local function loadNum(key, fallback)
-    if not ac or not ac.load then
-        return fallback or 0.0
-    end
-
-    local ok, value =
-        pcall(
-            function()
-                return ac.load(key)
-            end
-        )
-
-    if not ok or value == nil then
-        return fallback or 0.0
-    end
-
-    return tonumber(value) or fallback or 0.0
+    return tonumber(core.safeLoadRaw(key)) or fallback or 0.0
 end
 
-local function loadRaw(key, fallback)
-    if not ac or not ac.load then
-        return fallback
-    end
-
-    local ok, value =
-        pcall(
-            function()
-                return ac.load(key)
-            end
-        )
-
-    if not ok or value == nil then
-        return fallback
-    end
-
-    return value
-end
+local loadRaw = core.safeLoad
 
 local function loadNumAlt(defaultValue, ...)
     local keys = { ... }
@@ -1954,7 +1906,10 @@ local function drawRuntimeStatus(runtime, modules)
     end
 
     if PERFORMANCE_LITE then
-        ui.text("Monitor : PERFORMANCE LITE")
+        ui.text("Monitor : PERFORMANCE LITE / " .. core.performance.mode)
+        ui.text(string.format("Script CPU: %.2f ms avg / %.2f ms peak (not game FPS)",
+            runtime.avgUpdateMs or 0.0, runtime.maxUpdateMs or 0.0))
+        ui.text(string.format("Native export errors: %d", core.transport.exportErrors))
         return
     end
 
