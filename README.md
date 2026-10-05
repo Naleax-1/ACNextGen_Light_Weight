@@ -2,11 +2,7 @@
 
 ACNextGen Enhanced Physics の計算モデルを維持しながら、Luaアプリの値受け渡し・API取得・診断出力を軽量化した版です。
 
-**実機での100 FPS超えは未検証です。以下のCPU時間はゲーム内FPSではありません。**
-Assetto Corsa、CSP本体、i7-8700 / RTX 3060の実機は、この検証環境では利用できません。
 
-作業PR: https://github.com/Naleax-1/ACNextGen_Light_Weight/pull/1
-変更は `genspark_ai_developer` ブランチにあります。PR未マージの場合、`main` のダウンロードには反映されません。
 
 ## 変更内容
 
