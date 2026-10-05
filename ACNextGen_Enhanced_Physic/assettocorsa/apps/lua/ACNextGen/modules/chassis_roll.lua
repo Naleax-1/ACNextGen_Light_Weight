@@ -7,6 +7,7 @@
 -- Chassis Roll / Pitch / Heave Response
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -189,21 +190,7 @@ local function safeNumber(v, d)
     return n
 end
 
-local function safeLoadRaw(k)
-    if not ac or not ac.load then
-        return nil
-    end
-
-    local ok, v = pcall(function()
-        return ac.load(k)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return v
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(k, d)
     local v = safeLoadRaw(k)
@@ -213,31 +200,9 @@ local function safeLoad(k, d)
     return safeNumber(v, d or 0.0)
 end
 
-local function safeStore(k, v)
-    if not ac or not ac.store then
-        return
-    end
+local safeStore = core.safeStore
 
-    pcall(function()
-        ac.store(k, v)
-    end)
-end
-
-local function safeField(o, f, d)
-    if not o then
-        return d
-    end
-
-    local ok, v = pcall(function()
-        return o[f]
-    end)
-
-    if not ok or v == nil then
-        return d
-    end
-
-    return v
-end
+local safeField = core.safeField
 
 local function safeGetCar()
     if not ac or not ac.getCar then

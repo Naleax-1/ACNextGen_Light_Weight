@@ -7,6 +7,7 @@
 -- Control arm and bushing compliance approximation
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 --============================================================
@@ -117,43 +118,13 @@ local function clamp(v, minValue, maxValue)
     return v
 end
 
-local function safeField(obj, field, defaultValue)
-    if not obj then return defaultValue end
-
-    local ok, value = pcall(function()
-        return obj[field]
-    end)
-
-    if not ok or value == nil then
-        return defaultValue
-    end
-
-    return value
-end
+local safeField = core.safeField
 
 local function safeLoad(key, defaultValue)
-    if not ac or not ac.load then
-        return defaultValue or 0.0
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok or value == nil then
-        return defaultValue or 0.0
-    end
-
-    return num(value, defaultValue or 0.0)
+    return num(core.safeLoadRaw(key), defaultValue)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then return end
-
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
 local function getCarSafe()
     if not ac or not ac.getCar then return nil end

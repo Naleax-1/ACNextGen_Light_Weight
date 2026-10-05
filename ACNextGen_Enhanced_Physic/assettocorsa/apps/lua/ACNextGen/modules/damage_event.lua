@@ -6,6 +6,7 @@
 -- Impact event recorder
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -92,31 +93,9 @@ local function abs(value)
     return value < 0.0 and -value or value
 end
 
-local function safeField(object, field, defaultValue)
-    if not object then
-        return defaultValue
-    end
+local safeField = core.safeField
 
-    local ok, value = pcall(function()
-        return object[field]
-    end)
-
-    if not ok or value == nil then
-        return defaultValue
-    end
-
-    return value
-end
-
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return
-    end
-
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
 local function safeGetCar()
     if not ac or not ac.getCar then

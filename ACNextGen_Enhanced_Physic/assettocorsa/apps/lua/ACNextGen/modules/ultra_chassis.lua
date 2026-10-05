@@ -13,6 +13,7 @@
 --   - Export root signals for tire_state, tire_thermal_brush and tire_force.
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 --============================================================
@@ -158,21 +159,7 @@ local function sign(v)
     return 0.0
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then
-        return nil
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, fallback)
     local value = safeLoadRaw(key)
@@ -182,31 +169,9 @@ local function safeLoad(key, fallback)
     return safeNumber(value, fallback or 0.0)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return
-    end
+local safeStore = core.safeStore
 
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
-
-local function safeField(obj, field, fallback)
-    if not obj then
-        return fallback
-    end
-
-    local ok, value = pcall(function()
-        return obj[field]
-    end)
-
-    if not ok or value == nil then
-        return fallback
-    end
-
-    return value
-end
+local safeField = core.safeField
 
 local function lowPass(current, target, tau, dt)
     current = safeNumber(current, 0.0)

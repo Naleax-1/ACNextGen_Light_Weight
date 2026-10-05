@@ -7,6 +7,7 @@
 -- Tire contact patch state bridge
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -176,35 +177,9 @@ local function lowPass(current, target, tau, dt)
     return current + (target - current) * (dt / math.max(tau + dt, 0.0001))
 end
 
-local function safeField(obj, key, defaultValue)
-    if not obj then return defaultValue end
+local safeField = core.safeField
 
-    local ok, value = pcall(function()
-        return obj[key]
-    end)
-
-    if not ok or value == nil then
-        return defaultValue
-    end
-
-    return value
-end
-
-local function safeLoadRaw(key)
-    if not ac or not ac.load then
-        return nil
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -216,15 +191,7 @@ local function safeLoad(key, defaultValue)
     return safeNumber(value, defaultValue)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return
-    end
-
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
 local function safeGetCar()
     if not ac or not ac.getCar then

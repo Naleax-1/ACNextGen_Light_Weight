@@ -7,6 +7,7 @@
 -- Tire Relaxation Length / Load Sensitivity / Slip Energy Model
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 --============================================================
@@ -229,14 +230,7 @@ local function abs(v)
     return math.abs(safeNumber(v, 0.0))
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-    if not ok then return nil end
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -247,21 +241,9 @@ local function safeLoad(key, defaultValue)
     return safeNumber(value, defaultValue)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then return end
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
-local function safeField(obj, field, defaultValue)
-    if not obj then return defaultValue end
-    local ok, value = pcall(function()
-        return obj[field]
-    end)
-    if not ok or value == nil then return defaultValue end
-    return value
-end
+local safeField = core.safeField
 
 local function getCarSafe(car)
     if car then return car end

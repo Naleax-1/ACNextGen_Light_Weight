@@ -10,6 +10,7 @@
 -- signals into stable hub keys for observers and downstream modules.
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -199,19 +200,9 @@ local function lowPass(current, target, tau, dt)
     return current + (target - current) * a
 end
 
-local function safeField(obj, field, defaultValue)
-    if not obj then return defaultValue end
-    local ok, v = pcall(function() return obj[field] end)
-    if not ok or v == nil then return defaultValue end
-    return v
-end
+local safeField = core.safeField
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, v = pcall(function() return ac.load(key) end)
-    if not ok then return nil end
-    return v
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function loadNumber(key, defaultValue)
     local v = safeLoadRaw(key)
@@ -247,10 +238,7 @@ local function loadFirstString(defaultValue, ...)
     return tostring(defaultValue or ""), nil
 end
 
-local function storeValue(key, value)
-    if not ac or not ac.store then return end
-    pcall(function() ac.store(key, value) end)
-end
+local storeValue = core.safeStore
 
 local function safeGetCar()
     if not ac or not ac.getCar then return nil end

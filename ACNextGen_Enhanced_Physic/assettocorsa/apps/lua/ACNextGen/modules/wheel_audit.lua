@@ -8,6 +8,7 @@
 -- ホイールAPI安全監査 / 診断補助
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 local WHEEL_NAME = {
@@ -99,16 +100,7 @@ local function num(value, defaultValue)
     return n
 end
 
-local function safeStore(key, value)
-    pcall(
-        function()
-            ac.store(
-                key,
-                value
-            )
-        end
-    )
-end
+local safeStore = core.safeStore
 
 local function drawLine(line)
     if ui and ui.text then
@@ -124,24 +116,7 @@ end
 -- Accessing a missing member directly can crash the app.
 ------------------------------------------------------------
 
-local function safeField(obj, key, defaultValue)
-    if not obj then
-        return defaultValue
-    end
-
-    local ok, value =
-        pcall(
-            function()
-                return obj[key]
-            end
-        )
-
-    if not ok or value == nil then
-        return defaultValue
-    end
-
-    return value
-end
+local safeField = core.safeField
 
 local function hasField(obj, key)
     if not obj then

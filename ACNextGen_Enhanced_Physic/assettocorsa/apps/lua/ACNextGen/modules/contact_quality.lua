@@ -6,6 +6,7 @@
 -- Contact Quality / Trust Bridge
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 local WHEEL_NAME = {
@@ -220,31 +221,9 @@ local function lowPass(current, target, tau, dt)
     return current + (target - current) * clamp(dt / math.max(tau + dt, 0.0001), 0.0, 1.0)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return
-    end
+local safeStore = core.safeStore
 
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
-
-local function safeLoadRaw(key)
-    if not ac or not ac.load then
-        return nil
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(key, fallback)
     local value = safeLoadRaw(key)
@@ -256,21 +235,7 @@ local function safeLoad(key, fallback)
     return num(value, fallback or 0.0)
 end
 
-local function safeField(obj, field, fallback)
-    if not obj then
-        return fallback
-    end
-
-    local ok, value = pcall(function()
-        return obj[field]
-    end)
-
-    if ok and value ~= nil then
-        return value
-    end
-
-    return fallback
-end
+local safeField = core.safeField
 
 local function safeGetCar()
     if not ac or not ac.getCar then

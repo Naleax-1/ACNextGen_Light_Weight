@@ -4,6 +4,7 @@
 -- ACNextGen V1.1.5 Stable
 -- Phase 2.5 / LSD Mechanical and Fallback Diagnostic Panel
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -48,14 +49,7 @@ local function abs(v)
     return v < 0.0 and -v or v
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then return nil end
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-    if not ok then return nil end
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoadNumber(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -69,12 +63,7 @@ local function safeLoadString(key, defaultValue)
     return tostring(value)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then return end
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
 local function updateDebugGate(dt)
     state.debugStoreTimer = (state.debugStoreTimer or 0.0) + (dt or 0.0)

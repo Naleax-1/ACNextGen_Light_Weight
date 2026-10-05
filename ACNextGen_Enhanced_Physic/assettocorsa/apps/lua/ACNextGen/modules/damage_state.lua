@@ -6,6 +6,7 @@
 -- Damage State Core
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -103,21 +104,7 @@ local function isValidWheelIndex(index)
     return index == 0 or index == 1 or index == 2 or index == 3
 end
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then
-        return nil
-    end
-
-    local ok, value = pcall(function()
-        return ac.load(key)
-    end)
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoadNumber(key, defaultValue)
     local value = safeLoadRaw(key)
@@ -146,15 +133,7 @@ local function safeLoadString(key, defaultValue)
     return tostring(value)
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return
-    end
-
-    pcall(function()
-        ac.store(key, value)
-    end)
-end
+local safeStore = core.safeStore
 
 local function safeGetCar()
     if not ac or not ac.getCar then

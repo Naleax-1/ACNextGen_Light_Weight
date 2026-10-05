@@ -12,6 +12,7 @@
 --   元の G衝撃検出を維持し、
 --   tire / suspension / chassis / body / brake / thermal のroot impactを追加する。
 
+local core = require("modules.ngp_core")
 local M = {}
 
 --============================================================
@@ -143,36 +144,9 @@ local function safeNumber(value, defaultValue)
 end
 
 
-local function safeLoadRaw(key)
-    if not ac or not ac.load then
-        return nil
-    end
+local safeLoadRaw = core.safeLoadRaw
 
-    local ok, value =
-        pcall(
-            function()
-                return ac.load(key)
-            end
-        )
-
-    if not ok then
-        return nil
-    end
-
-    return value
-end
-
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return
-    end
-
-    pcall(
-        function()
-            ac.store(key, value)
-        end
-    )
-end
+local safeStore = core.safeStore
 
 local function clamp(value, minValue, maxValue)
     value =
@@ -549,22 +523,22 @@ end
 --============================================================
 
 local function exportState()
-    ac.store(
+    core.safeStore(
         "ngp_impact_status",
         state.status or "UNKNOWN"
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_update_count",
         state.updateCount or 0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_g",
         state.g or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_value",
         state.impact or 0.0
     )
@@ -574,53 +548,53 @@ local function exportState()
         state.rootImpact or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_type",
         state.type or "NONE"
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_vertical_g",
         state.verticalG or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_lateral_g",
         state.lateralG or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_longitudinal_g",
         state.longitudinalG or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_ax",
         state.ax or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_ay",
         state.ay or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_az",
         state.az or 0.0
     )
 
-    ac.store(
+    core.safeStore(
         "ngp_impact_damage_linked",
         state.damageLinked and 1 or 0
     )
 
     for i = 0, 3 do
-        ac.store(
+        core.safeStore(
             "ngp_impact_wheel_load_" .. i,
             state.wheelLoad[i] or 0.0
         )
 
-        ac.store(
+        core.safeStore(
             "ngp_impact_wheel_damaged_" .. i,
             state.wheelDamaged[i] or 0
         )

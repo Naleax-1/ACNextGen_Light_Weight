@@ -6,6 +6,7 @@
 -- High / Low Speed Damper Model
 --============================================================
 
+local core = require("modules.ngp_core")
 local M = {}
 
 M.params = {
@@ -177,12 +178,7 @@ local function abs(v)
     return v < 0.0 and -v or v
 end
 
-local function safeLoadRaw(k)
-    if not ac or not ac.load then return nil end
-    local ok, v = pcall(function() return ac.load(k) end)
-    if not ok then return nil end
-    return v
-end
+local safeLoadRaw = core.safeLoadRaw
 
 local function safeLoad(k, d)
     local v = safeLoadRaw(k)
@@ -201,17 +197,9 @@ local function safeLoadAlt(d, ...)
     return d or 0.0, nil
 end
 
-local function safeStore(k, v)
-    if not ac or not ac.store then return end
-    pcall(function() ac.store(k, v) end)
-end
+local safeStore = core.safeStore
 
-local function safeField(o, f, d)
-    if not o then return d end
-    local ok, v = pcall(function() return o[f] end)
-    if not ok or v == nil then return d end
-    return v
-end
+local safeField = core.safeField
 
 local function lowPass(cur, tgt, tau, dt)
     cur = safeNumber(cur, 0.0)

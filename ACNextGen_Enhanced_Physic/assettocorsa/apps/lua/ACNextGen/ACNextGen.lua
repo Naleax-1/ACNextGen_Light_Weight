@@ -2,12 +2,13 @@
 
 --============================================================
 -- ACNextGen.lua
--- ACNextGen V1.1.6
--- Performance Recovery / Strict Struct Safe Runtime
+-- ACNextGen V1.1.7 Lightweight
+-- In-process Signals / Strict Struct Safe Runtime
 --============================================================
 
+local core = require("modules.ngp_core")
 local APP_NAME = "ACNextGen"
-local VERSION  = "V1.1.6 Performance Recovery / Struct Safe"
+local VERSION  = "V1.1.7 Lightweight / In-process Signals"
 
 local RUNTIME_STORE_INTERVAL = 0.25
 local PROFILE_EXPORT_INTERVAL = 2.00
@@ -39,6 +40,9 @@ local runtime = {
     moduleErrors = {},
 
     initialized = false,
+    updateMs = 0.0,
+    avgUpdateMs = 0.0,
+    maxUpdateMs = 0.0,
 }
 
 local timers = {
@@ -76,15 +80,7 @@ local function log(msg)
     end
 end
 
-local function safeStore(key, value)
-    if not ac or not ac.store then
-        return false
-    end
-
-    local ok = pcall(ac.store, key, value)
-
-    return ok
-end
+local safeStore = core.safeStore
 
 local function safeClock()
     if os and os.clock then
@@ -115,11 +111,7 @@ local function hasWheels(car)
         return false
     end
 
-    local ok, wheels = pcall(function()
-        return car.wheels
-    end)
-
-    return ok and wheels ~= nil
+    return core.safeField(car, "wheels", nil) ~= nil
 end
 
 local function shortError(value)
@@ -608,6 +600,10 @@ local function storeRuntime()
 
     safeStore("ngp_runtime_last_error", runtime.lastError or "")
     safeStore("ngp_runtime_version", VERSION)
+    safeStore("ngp_runtime_transport", core.performance.mode)
+    safeStore("ngp_runtime_script_avg_ms", runtime.avgUpdateMs)
+    safeStore("ngp_runtime_script_max_ms", runtime.maxUpdateMs)
+    safeStore("ngp_runtime_export_errors", core.transport.exportErrors)
     safeStore("ngp_runtime_scheduler", "60/30/20/15/10/5Hz")
     safeStore(
         "ngp_runtime_root_order",
@@ -660,12 +656,14 @@ end
 --============================================================
 
 function update(dt)
+    local startClock = safeClock()
     dt = num(dt, 0.0)
 
     if dt <= 0.0 then
         dt = 0.001
     end
 
+    core.beginFrame(dt)
     runtime.frame = runtime.frame + 1
     runtime.time = runtime.time + dt
 
@@ -703,7 +701,14 @@ function update(dt)
         storeRuntime()
     end
 
+    core.endFrame()
+    core.flush()
     stepGC(dt)
+
+    -- CPU time for this Lua update only, not total game frame time or FPS.
+    runtime.updateMs = math.max(0.0, (safeClock() - startClock) * 1000.0)
+    runtime.avgUpdateMs = runtime.avgUpdateMs + (runtime.updateMs - runtime.avgUpdateMs) * 0.05
+    runtime.maxUpdateMs = math.max(runtime.maxUpdateMs, runtime.updateMs)
 end
 
 --============================================================
@@ -760,5 +765,6 @@ end
 
 loadModules()
 storeRuntime()
+core.flush(true)
 
 log(VERSION .. " loaded")
